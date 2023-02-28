@@ -26,10 +26,15 @@ def get_locale() -> str:
     """
     method determine the best match with our supported languages
     """
-    lcl = request.args.get('locale', None)
-    if lcl and lcl in app.config['LANGUAGES']:
-        return lcl
-    return request.accept_languages.best_match(app.config['LANGUAGES'])
+    queries = request.query_string.decode('utf-8').split('&')
+    query_table = dict(map(
+        lambda x: (x if '=' in x else '{}='.format(x)).split('='),
+        queries,
+    ))
+    if 'locale' in query_table:
+        if query_table['locale'] in app.config["LANGUAGES"]:
+            return query_table['locale']
+    return request.accept_languages.best_match(app.config["LANGUAGES"])
 
 
 @app.route('/')
